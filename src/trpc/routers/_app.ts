@@ -10,7 +10,16 @@ export const appRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ input }) => {
-      await inngest.send({ name: "hello-world", data: { email: input.text } });
+      try {
+        await inngest.send({ name: "hello-world", data: { text: input.text } });
+        return { success: true };
+      } catch (error) {
+        throw new Error(
+          `Failed to send event: ${
+            error instanceof Error ? error.message : "Unknown error"
+          }`
+        );
+      }
     }),
 });
 // export type definition of API
