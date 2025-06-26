@@ -1,12 +1,27 @@
-import { caller } from "@/trpc/server";
+"use client";
 
-export default async function Home() {
-  const { greeting } = await caller.test({ text: 1 });
+import { Button } from "@/components/ui/button";
+import { useTRPC } from "@/trpc/client";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
+
+export default function Home() {
+  const trpc = useTRPC();
+
+  const invoke = useMutation(
+    trpc.invoke.mutationOptions({
+      onSuccess: () => {
+        toast.success("Invoked");
+      },
+    })
+  );
 
   return (
     <div className="flex flex-col items-center justify-center h-screen">
       <h1 className="text-4xl font-bold">Hello World</h1>
-      <pre>{greeting}</pre>
+      <Button onClick={() => invoke.mutate({ text: "ola" })}>
+        {invoke.isPending ? "Invoking..." : "Invoke"}
+      </Button>
     </div>
   );
 }
