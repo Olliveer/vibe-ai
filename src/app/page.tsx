@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useTRPC } from "@/trpc/client";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -11,10 +11,12 @@ export default function Home() {
   const [text, setText] = useState("");
   const trpc = useTRPC();
 
-  const invoke = useMutation(
-    trpc.invoke.mutationOptions({
+  const { data: messages } = useQuery(trpc.messages.all.queryOptions());
+
+  const createMessage = useMutation(
+    trpc.messages.create.mutationOptions({
       onSuccess: () => {
-        toast.success("Invoked");
+        toast.success("Message created.");
       },
     })
   );
@@ -26,9 +28,15 @@ export default function Home() {
         value={text}
         onChange={(e) => setText(e.target.value)}
       />
-      <Button onClick={() => invoke.mutate({ value: text })}>
-        {invoke.isPending ? "Invoking..." : "Invoke"}
+      <Button onClick={() => createMessage.mutate({ value: text })}>
+        {createMessage.isPending ? "Invoking..." : "Invoke"}
       </Button>
+
+      <div className="flex flex-col gap-2">
+        {messages?.map((message) => (
+          <div key={message.id}>{message.content}</div>
+        ))}
+      </div>
     </div>
   );
 }
