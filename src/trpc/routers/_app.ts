@@ -13,7 +13,7 @@ export const appRouter = createTRPCRouter({
       try {
         await inngest.send({
           name: "test/hello.world",
-          data: { input: input.value },
+          data: { value: input.value },
         });
         return { success: true };
       } catch (error) {
