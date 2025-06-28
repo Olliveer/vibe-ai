@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { baseProcedure, createTRPCRouter } from "@/trpc/init";
 import { z } from "zod";
 import { generateSlug } from "random-word-slugs";
+import { TRPCError } from "@trpc/server";
 
 export const projectsRouter = createTRPCRouter({
   all: baseProcedure.query(async () => {
@@ -13,7 +14,28 @@ export const projectsRouter = createTRPCRouter({
     });
     return projects;
   }),
+  getOne: baseProcedure
+    .input(
+      z.object({
+        id: z.string().min(1, "ID is required."),
+      })
+    )
+    .query(async ({ input }) => {
+      const projectExist = await db.project.findUnique({
+        where: {
+          id: input.id,
+        },
+      });
 
+      if (!projectExist) {
+        throw new TRPCError({
+          message: "Project not found.",
+          code: "NOT_FOUND",
+        });
+      }
+
+      return projectExist;
+    }),
   create: baseProcedure
     .input(
       z.object({

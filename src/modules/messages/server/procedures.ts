@@ -4,14 +4,26 @@ import { baseProcedure, createTRPCRouter } from "@/trpc/init";
 import { z } from "zod";
 
 export const messagesRouter = createTRPCRouter({
-  all: baseProcedure.query(async () => {
-    const messages = await db.message.findMany({
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
-    return messages;
-  }),
+  all: baseProcedure
+    .input(
+      z.object({
+        projectId: z.string().min(1, "Project is required"),
+      })
+    )
+    .query(async ({ input }) => {
+      const messages = await db.message.findMany({
+        where: {
+          projectId: input.projectId,
+        },
+        include: {
+          fragment: true,
+        },
+        orderBy: {
+          createdAt: "asc",
+        },
+      });
+      return messages;
+    }),
 
   create: baseProcedure
     .input(
