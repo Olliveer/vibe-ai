@@ -26,7 +26,7 @@ export default function MessagesContainer({
         projectId,
       },
       {
-        refetchInterval: 5000,
+        refetchInterval: 10000,
       }
     )
   );
@@ -56,7 +56,7 @@ export default function MessagesContainer({
               key={message.id}
               content={message.content}
               role={message.role}
-              fragment={message.fragment}
+              fragment={message.fragment!}
               createdAt={message.createdAt}
               isFragmentActive={activeFragment?.id === message.fragment?.id}
               type={message.type}

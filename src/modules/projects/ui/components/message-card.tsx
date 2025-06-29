@@ -8,7 +8,7 @@ import Image from "next/image";
 interface Props {
   content: string;
   role: MessageRole;
-  fragment: Fragment | null;
+  fragment: Fragment;
   createdAt: Date;
   isFragmentActive: boolean;
   type: MessageType;
@@ -30,7 +30,6 @@ function FragmentCard({
   isFragmentActive,
   onFragmentClick,
 }: Pick<Props, "fragment" | "isFragmentActive" | "onFragmentClick">) {
-  if (!fragment) return null;
   return (
     <button
       type="button"

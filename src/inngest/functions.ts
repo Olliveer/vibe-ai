@@ -183,6 +183,7 @@ export const codeAgentFunction = inngest.createFunction(
     });
 
     await step.run("save-result", async () => {
+      console.log("save-result", event.data);
       if (isError) {
         await db.message.create({
           data: {
@@ -196,7 +197,6 @@ export const codeAgentFunction = inngest.createFunction(
 
       return await db.message.create({
         data: {
-          projectId: event.data.projectId,
           content: result.state.data.summary,
           role: "ASSISTANT",
           type: "RESULT",
@@ -207,6 +207,7 @@ export const codeAgentFunction = inngest.createFunction(
               files: result.state.data.files,
             },
           },
+          projectId: event.data.projectId,
         },
       });
     });
