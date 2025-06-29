@@ -9,6 +9,7 @@ import {
 import { Fragment } from "@/generated/prisma";
 import MessagesContainer from "@/modules/projects/ui/components/messages-container";
 import ProjectHeader from "../components/project-header";
+import FragmentWeb from "../components/fragment-web";
 
 interface Props {
   projectId: string;
@@ -40,7 +41,7 @@ export default function ProjectView({ projectId }: Props) {
           defaultSize={65}
           minSize={50}
         >
-          todo preview
+          {activeFragment ? <FragmentWeb data={activeFragment} /> : null}
         </ResizablePanel>
       </ResizablePanelGroup>
     </div>

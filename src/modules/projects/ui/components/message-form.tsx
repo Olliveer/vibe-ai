@@ -1,15 +1,15 @@
-import { Button } from "@/components/ui/button";
-import { Form, FormField } from "@/components/ui/form";
+import { useState } from "react";
+import { z } from "zod";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useForm } from "react-hook-form";
+import { Form, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { cn } from "@/lib/utils";
 import { useTRPC } from "@/trpc/client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ArrowUpIcon, Loader2Icon } from "lucide-react";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
 import TextareaAutosize from "react-textarea-autosize";
 import { toast } from "sonner";
-import { z } from "zod";
+import { Button } from "@/components/ui/button";
 
 interface Props {
   projectId: string;
@@ -20,7 +20,6 @@ const formSchema = z.object({
     .string()
     .min(1, "Message is required")
     .max(10000, "Message is too long"),
-  projectId: z.string().min(1, "Project is required"),
 });
 
 export default function MessageForm({ projectId }: Props) {
@@ -61,7 +60,8 @@ export default function MessageForm({ projectId }: Props) {
     });
   };
 
-  const isDisabled = !form.formState.isValid || createMessageMutation.isPending;
+  const isPending = createMessageMutation.isPending;
+  const isDisabled = !form.formState.isValid || isPending;
 
   return (
     <Form {...form}>
@@ -77,22 +77,25 @@ export default function MessageForm({ projectId }: Props) {
           control={form.control}
           name="value"
           render={({ field }) => (
-            <TextareaAutosize
-              {...field}
-              className="resize-none pt-4 border-none w-full outline-none bg-transparent"
-              onFocus={() => setIsFocused(true)}
-              onBlur={() => setIsFocused(false)}
-              minRows={2}
-              maxRows={8}
-              placeholder="What do you want to build?"
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
-                  e.preventDefault();
-                  form.handleSubmit(onSubmit)(e);
-                }
-              }}
-              disabled={createMessageMutation.isPending}
-            />
+            <FormItem>
+              <TextareaAutosize
+                {...field}
+                disabled={isPending}
+                className="resize-none pt-4 border-none w-full outline-none bg-transparent"
+                onFocus={() => setIsFocused(true)}
+                onBlur={() => setIsFocused(false)}
+                minRows={2}
+                maxRows={8}
+                placeholder="What do you want to build?"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+                    e.preventDefault();
+                    form.handleSubmit(onSubmit)(e);
+                  }
+                }}
+              />
+              <FormMessage />
+            </FormItem>
           )}
         />
         <div className="flex gap-x-2 items-end justify-between pt-2">
@@ -103,13 +106,14 @@ export default function MessageForm({ projectId }: Props) {
             &nbsp;to submit
           </div>
           <Button
+            type="submit"
             disabled={isDisabled}
             className={cn(
               "size-8 rounded-full",
               isDisabled && "bg-muted-foreground border"
             )}
           >
-            {createMessageMutation.isPending ? (
+            {isPending ? (
               <Loader2Icon className="size-4 animate-spin" />
             ) : (
               <ArrowUpIcon />
