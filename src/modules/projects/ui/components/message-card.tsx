@@ -18,7 +18,7 @@ interface Props {
 function UserMessage({ content }: { content: string }) {
   return (
     <div className="flex justify-end pb-4 pr-2 pl-10">
-      <Card className="rounded-lg bg-muted shadow-none border-none mx-w-[80%] break-words">
+      <Card className="rounded-lg bg-muted shadow-none border-none mx-w-[80%] break-words p-3">
         {content}
       </Card>
     </div>
