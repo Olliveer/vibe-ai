@@ -12,6 +12,7 @@ export const projectsRouter = createTRPCRouter({
         createdAt: "desc",
       },
     });
+
     return projects;
   }),
   getOne: baseProcedure
