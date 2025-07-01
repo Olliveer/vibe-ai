@@ -68,7 +68,7 @@ export default function ProjectView({ projectId }: Props) {
               <div className="ml-auto flex items-center gap-x-2">
                 <Button
                   asChild
-                  variant="default"
+                  variant="tertiary"
                   size="sm"
                 >
                   <Link href={`/pricing`}>
