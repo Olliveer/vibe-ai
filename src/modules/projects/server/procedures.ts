@@ -1,13 +1,17 @@
 import { inngest } from "@/inngest/client";
 import { db } from "@/lib/db";
-import { baseProcedure, createTRPCRouter } from "@/trpc/init";
+import { protectedProcedure, createTRPCRouter } from "@/trpc/init";
 import { z } from "zod";
 import { generateSlug } from "random-word-slugs";
 import { TRPCError } from "@trpc/server";
 
 export const projectsRouter = createTRPCRouter({
-  all: baseProcedure.query(async () => {
+  all: protectedProcedure.query(async ({ ctx }) => {
+    console.log(ctx.auth.userId);
     const projects = await db.project.findMany({
+      where: {
+        userId: ctx.auth.userId,
+      },
       orderBy: {
         createdAt: "desc",
       },
@@ -15,16 +19,17 @@ export const projectsRouter = createTRPCRouter({
 
     return projects;
   }),
-  getOne: baseProcedure
+  getOne: protectedProcedure
     .input(
       z.object({
         id: z.string().min(1, "ID is required."),
       })
     )
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
       const projectExist = await db.project.findUnique({
         where: {
           id: input.id,
+          userId: ctx.auth.userId,
         },
       });
 
@@ -37,7 +42,7 @@ export const projectsRouter = createTRPCRouter({
 
       return projectExist;
     }),
-  create: baseProcedure
+  create: protectedProcedure
     .input(
       z.object({
         value: z
@@ -46,7 +51,7 @@ export const projectsRouter = createTRPCRouter({
           .max(10000, "Value is too long"),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const newProject = await db.project.create({
         data: {
           name: generateSlug(2, { format: "kebab" }),
@@ -57,6 +62,7 @@ export const projectsRouter = createTRPCRouter({
               type: "RESULT",
             },
           },
+          userId: ctx.auth.userId,
         },
       });
 
