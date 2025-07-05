@@ -1,6 +1,7 @@
 import { inngest } from "@/inngest/client";
 import { db } from "@/lib/db";
-import { protectedProcedure, createTRPCRouter } from "@/trpc/init";
+import { consumeCredits } from "@/lib/usage";
+import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
@@ -52,6 +53,22 @@ export const messagesRouter = createTRPCRouter({
           code: "NOT_FOUND",
           message: "Project not found",
         });
+      }
+
+      try {
+        await consumeCredits();
+      } catch (error) {
+        if (error instanceof Error) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Something went wrong!",
+          });
+        } else {
+          throw new TRPCError({
+            code: "TOO_MANY_REQUESTS",
+            message: "You have run out of credits.",
+          });
+        }
       }
 
       const newMessage = await db.message.create({

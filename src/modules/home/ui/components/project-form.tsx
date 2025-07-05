@@ -43,11 +43,15 @@ export function ProjectForm() {
         toast.success("Message created");
         queryClient.invalidateQueries(trpc.projects.all.queryOptions());
         router.push(`/projects/${data.id}`);
-        // TODO INVALIDATE USAGE
+        queryClient.invalidateQueries(trpc.usage.status.queryOptions());
       },
       onError: (error) => {
         if (error.data?.code === "UNAUTHORIZED") {
           clerk.openSignIn();
+        }
+
+        if (error.data?.code === "TOO_MANY_REQUESTS") {
+          router.push("/pricing");
         }
         toast.error(error.message);
       },
