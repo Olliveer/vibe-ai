@@ -17,7 +17,9 @@ export function Usage({ points, msBeforeNext }: UsageProps) {
     <div className="rounded-t-xl bg-background border border-b-0 p-2.5">
       <div className="flex items-center justify-between gap-x-2">
         <div className="">
-          <p className="text-sm">{points} free credits remaining</p>
+          <p className="text-sm">
+            {points} {hasProAccess ? "" : "free"} credits remaining
+          </p>
           <p className="text-xs text-muted-foreground">
             Resets in{" "}
             {formatDuration(
