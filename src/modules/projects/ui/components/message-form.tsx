@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { z } from "zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { Form, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { cn } from "@/lib/utils";
@@ -10,6 +10,8 @@ import { ArrowUpIcon, Loader2Icon } from "lucide-react";
 import TextareaAutosize from "react-textarea-autosize";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Usage } from "./usage";
+import { useRouter } from "next/navigation";
 
 interface Props {
   projectId: string;
@@ -23,10 +25,14 @@ const formSchema = z.object({
 });
 
 export default function MessageForm({ projectId }: Props) {
+  const router = useRouter();
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const [isFocused, setIsFocused] = useState(false);
-  const showUsage = false;
+
+  const { data: usage } = useQuery(trpc.usage.status.queryOptions());
+
+  const showUsage = !!usage;
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -44,11 +50,14 @@ export default function MessageForm({ projectId }: Props) {
           trpc.messages.all.queryOptions({ projectId })
         );
 
-        // TODO INVALIDATE USAGE
+        queryClient.invalidateQueries(trpc.usage.status.queryOptions());
       },
       onError: (error) => {
-        // TODO: handle error
         toast.error(error.message);
+
+        if (error.data?.code === "TOO_MANY_REQUESTS") {
+          router.push("/pricing");
+        }
       },
     })
   );
@@ -65,6 +74,12 @@ export default function MessageForm({ projectId }: Props) {
 
   return (
     <Form {...form}>
+      {showUsage && (
+        <Usage
+          points={usage.remainingPoints}
+          msBeforeNext={usage.msBeforeNext}
+        />
+      )}
       <form
         onSubmit={form.handleSubmit(onSubmit)}
         className={cn(
