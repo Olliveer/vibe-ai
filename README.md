@@ -1,148 +1,221 @@
-# 🌟 Vibe AI
+# Vibe AI - AI-Powered Code Execution Platform
 
-> Where code meets creativity and ideas come to life! ✨
+> ⚠️ **STUDY PROJECT NOTICE**: This application is developed for educational and research purposes. API requests and code execution are limited to prevent abuse. Not intended for production use.
 
-Welcome to **Vibe AI** - your friendly neighborhood AI-powered code execution platform! Think of it as your personal coding companion that not only understands what you want to build but can actually help you build it, test it, and iterate on it in real-time.
+## Overview
 
-## 🚀 What's This All About?
+Vibe AI is an experimental platform that demonstrates AI-powered code execution capabilities through secure sandboxed environments. The system enables real-time interaction with AI agents for code generation, execution, and iteration workflows.
 
-Ever wished you could just tell someone what you want to code and have them help you figure it out? That's exactly what Vibe AI does! It's like having a super smart coding buddy who:
+## Architecture
 
-- 💬 **Chats with you** about your ideas and requirements
-- 🔧 **Executes code** in secure sandboxes (thanks to E2B!)
-- 🎨 **Shows you results** in beautiful, interactive fragments
-- 🔄 **Iterates with you** until you get exactly what you want
+The platform implements a microservices architecture with the following core components:
 
-## 🛠️ The Tech Stack (aka The Good Stuff)
+### Frontend Layer
 
-We're using some pretty sweet tech here:
+- **Next.js 15** with App Router for server-side rendering and routing
+- **TypeScript** for type safety and enhanced developer experience
+- **Tailwind CSS** + **shadcn/ui** for component-based UI architecture
+- **tRPC** client for type-safe API communication
 
-- **Next.js 15** - Because we like our React fast and fancy
-- **TypeScript** - Type safety is our love language
-- **tRPC** - Type-safe APIs that just make sense
-- **Prisma** - Database stuff made easy
-- **Inngest** - Background jobs that actually work
-- **E2B** - Secure code execution (no breaking your computer!)
-- **Tailwind CSS** - Making things pretty without the CSS headaches
-- **shadcn/ui** - Beautiful components out of the box
+### Backend Services
 
-## 🎯 How It Works
+- **tRPC** server with type-safe procedure definitions
+- **Prisma ORM** with PostgreSQL for data persistence
+- **Inngest** for background job processing and event handling
+- **E2B** integration for secure code execution in isolated environments
 
-1. **Create a project** - Start with an idea, any idea!
-2. **Chat away** - Tell the AI what you want to build
-3. **Watch the magic** - See your code execute in real-time
-4. **Iterate** - Tweak, adjust, and perfect your creation
+### Database Schema
 
-The interface is split into two main areas:
+- Projects management with user association
+- Message threading with fragment storage
+- Usage tracking and rate limiting
+- Migration history with Prisma migrations
 
-- **Left side**: Your conversation with the AI
-- **Right side**: Live results, web fragments, and code outputs
+## Technical Implementation
 
-## 🏃‍♂️ Getting Started
+### Code Execution Pipeline
 
-Ready to dive in? Let's get you set up!
+1. **Input Processing**: User messages are processed through tRPC procedures
+2. **AI Integration**: Messages are sent to AI agents for code generation
+3. **Sandbox Execution**: Generated code is executed in E2B sandboxes
+4. **Result Aggregation**: Execution results are captured and stored as fragments
+5. **Real-time Updates**: WebSocket connections provide live feedback
+
+### Security Model
+
+- **Isolated Execution**: All code runs in containerized E2B environments
+- **Resource Limits**: CPU, memory, and execution time constraints
+- **Network Isolation**: Sandboxes have restricted network access
+- **Input Validation**: All user inputs are sanitized and validated
+
+## Development Setup
 
 ### Prerequisites
 
-- Node.js (the newer the better!)
-- A database (we're using Prisma, so pretty flexible)
-- Some curiosity and maybe a coffee ☕
+- Node.js 18+ with npm/yarn
+- PostgreSQL database instance
+- E2B API credentials
+- Inngest development environment
 
 ### Installation
 
 ```bash
-# Clone this bad boy
-git clone <your-repo-url>
+# Clone repository
+git clone <repository-url>
 cd vibe-ai
 
-# Install all the goodies
+# Install dependencies
 npm install
 
-# Set up your database
+# Database setup
 npx prisma generate
 npx prisma migrate dev
 
-# Fire it up!
+# Environment configuration
+cp .env.example .env
+# Configure required environment variables
+
+# Development server
 npm run dev
 ```
 
-Visit `http://localhost:3000` and start vibing! 🎉
+### Environment Variables
 
-## 🗂️ Project Structure
+```env
+DATABASE_URL="postgresql://..."
+E2B_API_KEY="your-e2b-api-key"
+INNGEST_EVENT_KEY="your-inngest-key"
+INNGEST_SIGNING_KEY="your-inngest-signing-key"
+```
 
-Here's how we've organized this beauty:
+## Project Structure
 
 ```
 src/
-├── app/                    # Next.js app router magic
-├── components/             # Reusable UI components
-├── modules/
-│   ├── projects/          # Project management
-│   └── messages/          # Chat & messaging
-├── inngest/               # Background job handlers
-├── lib/                   # Utilities and helpers
-└── trpc/                  # API routes and procedures
+├── app/                    # Next.js App Router pages
+│   ├── (home)/            # Public pages (auth, pricing)
+│   ├── api/               # API routes
+│   └── projects/          # Project-specific pages
+├── components/            # Reusable UI components
+│   ├── ui/               # shadcn/ui components
+│   └── code-view/        # Code display components
+├── modules/              # Feature modules
+│   ├── projects/         # Project management
+│   ├── messages/         # Chat system
+│   └── usage/            # Usage tracking
+├── inngest/              # Background job handlers
+├── lib/                  # Utility functions
+├── trpc/                 # API layer
+└── hooks/                # Custom React hooks
 ```
 
-## 🎨 Features
+## API Design
 
-- **🗨️ Interactive Chat**: Natural conversation with AI
-- **⚡ Live Code Execution**: See results instantly
-- **🔒 Secure Sandboxes**: Your code runs safely
-- **📱 Responsive Design**: Works on all devices
-- **🎯 Project-Based**: Organize your experiments
-- **🔄 Real-time Updates**: Everything happens live
+### tRPC Procedures
 
-## 🚀 Deployment
+- **projects.create**: Initialize new project instances
+- **projects.list**: Retrieve user projects with pagination
+- **messages.create**: Process user messages and trigger AI responses
+- **messages.list**: Fetch conversation history
+- **usage.track**: Monitor API usage and rate limits
 
-Ready to show the world your creation?
+### Data Models
 
-### Vercel (Recommended)
+```prisma
+model Project {
+  id        String   @id @default(cuid())
+  name      String
+  userId    String
+  messages  Message[]
+  createdAt DateTime @default(now())
+}
 
-- Push to GitHub
-- Connect to Vercel
-- Deploy with one click
-- Done! 🎉
+model Message {
+  id        String   @id @default(cuid())
+  content   String
+  role      String   // 'user' | 'assistant'
+  projectId String
+  fragments MessageFragment[]
+}
 
-### Manual Deployment
+model MessageFragment {
+  id        String   @id @default(cuid())
+  type      String   // 'code' | 'web' | 'text'
+  content   String
+  messageId String
+}
+```
+
+## Rate Limiting & Usage
+
+Due to the experimental nature of this project:
+
+- **Daily Limits**: 100 requests per user
+- **Execution Time**: 30 seconds max per sandbox
+- **Storage**: 100MB per project
+- **Concurrent Sessions**: 5 per user
+
+## Development Guidelines
+
+### Code Standards
+
+- TypeScript strict mode enabled
+- ESLint configuration for code quality
+- Prettier for consistent formatting
+- Conventional commits for version control
+
+### Testing Strategy
+
+- Unit tests for utility functions
+- Integration tests for API procedures
+- E2E tests for critical user flows
+- Performance testing for sandbox execution
+
+## Deployment
+
+### Production Considerations
+
+- Database migrations through Prisma
+- Environment-specific configurations
+- Container orchestration for sandboxes
+- Monitoring and logging setup
+
+### Vercel Deployment
 
 ```bash
 npm run build
-npm start
+vercel --prod
 ```
 
-## 🤝 Contributing
+## Research & Educational Context
 
-Got ideas? Found a bug? Want to make this even more awesome? We'd love your help!
+This project serves as a study implementation for:
 
-1. Fork it
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+- **AI Agent Integration**: Exploring conversational AI in development workflows
+- **Secure Code Execution**: Implementing isolation mechanisms for user-generated code
+- **Real-time Communication**: WebSocket integration for live development feedback
+- **Type-safe Full-stack Development**: tRPC implementation patterns
 
-## 📝 Notes
+## Limitations & Future Work
 
-- This is a living, breathing project - expect awesome updates!
-- The AI agent uses E2B for secure code execution
-- Background processing is handled by Inngest
-- We're all about that type-safe life with TypeScript + tRPC
+- **Scalability**: Current architecture suitable for prototype/study use
+- **Language Support**: Limited to JavaScript/TypeScript execution
+- **Persistence**: Session-based storage without long-term data retention
+- **Authentication**: Basic implementation without advanced security features
 
-## 🆘 Need Help?
+## Contributing
 
-Stuck? No worries! Here are some things to try:
+This being a study project, contributions should focus on:
 
-1. Check the console for any errors
-2. Make sure your database is running
-3. Verify all environment variables are set
-4. Try turning it off and on again (classic!)
+- Educational improvements and documentation
+- Code quality and architectural patterns
+- Performance optimizations
+- Security enhancements
 
-## 🎉 Final Words
+## License
 
-Building stuff should be fun, collaborative, and maybe a little bit magical. That's what Vibe AI is all about - bringing your ideas to life with the help of AI, one conversation at a time.
-
-Happy coding! 🚀✨
+This project is for educational purposes only. Not licensed for commercial use.
 
 ---
 
-_Made with ❤️ and probably too much coffee_
+_Developed as part of software engineering studies focusing on AI integration and secure code execution._
